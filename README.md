@@ -6,7 +6,7 @@ Jacqueline Mascenik and Carlos DaLomba
 - We should consider how to vary our level design so that the game is not too repetitive.
 	- Moving platforms
 	- Make dark-gray enemies, make the player start out as gray, and gain color powers to shoot (shoot with the mouse?)
-- Add sprinting
+- ~~Add sprinting~~
 	- Test the sprintMultiplier value (How fast should sprinting be? Is it good as it is now?)
 	- Polish: Could we fix the animation transition from sprinting back to walking?
 - Fix Item Collection
@@ -22,7 +22,7 @@ Jacqueline Mascenik and Carlos DaLomba
 - Player visits a colorless world on death - This could be a cool addition!
 	- How could they exit?
 	- Could the player "accumulate or loss color power" of some sort?
-- Add toggleable controls screen with \
+- Add toggleable controls screen
 
 <br /><br /><br /><br />
 
@@ -40,3 +40,5 @@ Currently, we have...
 Some things we need that you can help with:
 - We need the map/level to be laid out with more collectable objects, walls, and spikes. You can resize them if you want to vary them a little (with scaling in the Transforms). You can also edit the terrain heights to make hills for example.
 - We do need some audio if you can create some for background music, and SFX when the player collects a collectable, runs into a spike, and jumps, perhaps. If you would have to grab audio from somewhere, I can create the sound effects. (Just cause licensing is complicated and I don't want to have to worry about works cited on the screen)
+
+[Markdown Guide for GitHub](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
