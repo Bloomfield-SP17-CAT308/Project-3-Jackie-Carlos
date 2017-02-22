@@ -1,11 +1,15 @@
 # Group-4
 Jacqueline Mascenik and Carlos DaLomba
 
-Notes:
-- The "Project 3 Carlos Jackie" folder is the Unity Project
-- The "Project 3 Carlos Jackie.exe" and "Project 3 Carlos Jackie_Data" folder are the built project (most-recent build as of 6:15pm 2/19/2017)
+# 2/22/2017
 
-# Our Current Progress...
+```C#
+public void Start() {
+  Debug.Log("This is how I would write some C# code using Markdown?");
+}
+```
+
+# 2/19/2017 - Our Current Progress...
 Carlos:
 As of 6:15pm 2/19/2017, we have...
 - Player movement with the mouse and keyboard. (Note: Press Ctrl while playing to toggle the mouse mode between moving the cursor and rotating the player)
