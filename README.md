@@ -4,19 +4,24 @@ Jacqueline Mascenik and Carlos DaLomba
 # 2/22/2017
 ##### Based on our feedback...
 - We should consider how to vary our level design so that the game is not too repetitive.
+	- Moving platforms
+	- Make dark-gray enemies, make the player start out as gray, and gain color powers to shoot (shoot with the mouse?)
 - Add sprinting
 	- Test the sprintMultiplier value (How fast should sprinting be? Is it good as it is now?)
-	- Polish: Could we fix the transition from sprinting back to walking?
+	- Polish: Could we fix the animation transition from sprinting back to walking?
 - Fix Item Collection
 	- If correct color: Hide Mesh Renderers, Spawn burst particle effect, add to points, destroy game object
-- Add a score of some sort, could be..
-	- Numeric points (Ex: Score: 100)
+	- If colors don't match (item and terrain): Spawn spikes that shoot up and deal damage
+- Add a score/counter of some sort, could be..
+	- Numeric points (Ex: Score: 10)
 	- Player's color could change towards the colors they picked up
+		- Consider red.. which we used for dangers.
+	- Number of items collected or spikes touched
 - Add a somewhat-satisfying end game condition
 - How does the player know the color of the floor tells them what collectables to go towards? (Perhaps use a particle effect and sound effect at the beginning of each new color change to show the items are shiny/valuable?)
 - Player visits a colorless world on death - This could be a cool addition!
 	- How could they exit?
-	- Could the player "accumulate color" power of some sort?
+	- Could the player "accumulate or loss color power" of some sort?
 - Add toggleable controls screen with \
 
 <br /><br /><br /><br />
