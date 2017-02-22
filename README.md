@@ -2,12 +2,27 @@
 Jacqueline Mascenik and Carlos DaLomba
 
 # 2/22/2017
+##### Based on our feedback...
+- We should consider how to vary our level design so that the game is not too repetitive.
+- Add sprinting
+	- Test the sprintMultiplier value (How fast should sprinting be? Is it good as it is now?)
+	- Polish: Could we fix the transition from sprinting back to walking?
+- Fix Item Collection
+	- If correct color: Hide Mesh Renderers, Spawn burst particle effect, add to points, destroy game object
+- Add a score of some sort
+- Add an end game condition
+- How does the player know the color of the floor tells them what collectables to go towards? (Perhaps use a particle effect and sound effect at the beginning of each new color change to show the items are shiny/valuable?)
+- Player visits a colorless world on death
+	- How could they exit?
+	- Could the player "accumulate color" power of some sort?
+- Add toggleable controls screen with \
 
-```C#
-public void Start() {
-  Debug.Log("This is how I would write some C# code using Markdown?");
-}
-```
+
+
+
+
+
+---
 
 # 2/19/2017 - Our Current Progress...
 Carlos:
