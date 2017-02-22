@@ -9,24 +9,23 @@ Jacqueline Mascenik and Carlos DaLomba
 	- Polish: Could we fix the transition from sprinting back to walking?
 - Fix Item Collection
 	- If correct color: Hide Mesh Renderers, Spawn burst particle effect, add to points, destroy game object
-- Add a score of some sort
-- Add an end game condition
+- Add a score of some sort, could be..
+	- Numeric points (Ex: Score: 100)
+	- Player's color could change towards the colors they picked up
+- Add a somewhat-satisfying end game condition
 - How does the player know the color of the floor tells them what collectables to go towards? (Perhaps use a particle effect and sound effect at the beginning of each new color change to show the items are shiny/valuable?)
-- Player visits a colorless world on death
+- Player visits a colorless world on death - This could be a cool addition!
 	- How could they exit?
 	- Could the player "accumulate color" power of some sort?
 - Add toggleable controls screen with \
 
-
-
-
-
+<br /><br /><br /><br />
 
 ---
 
-# 2/19/2017 - Our Current Progress...
+# 2/19/2017
 Carlos:
-As of 6:15pm 2/19/2017, we have...
+Currently, we have...
 - Player movement with the mouse and keyboard. (Note: Press Ctrl while playing to toggle the mouse mode between moving the cursor and rotating the player)
 - Prefabs for the Player, the hazardous Red Spikes, Collectables, and the Walls.
 - Player Health system, impacted by walking into red spikey objects (with animation for the player)
