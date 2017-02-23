@@ -15,8 +15,8 @@ public class Game : MonoBehaviour {
 		get { return instance; }
 	}
 
-	public Player Player {
-		get { return player; }
+	public static Player Player {
+		get { return Instance.player; }
 	}
 
 	public int CurrentColorIndex {

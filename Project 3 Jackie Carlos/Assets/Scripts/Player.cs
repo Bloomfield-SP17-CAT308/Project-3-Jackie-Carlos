@@ -11,23 +11,28 @@ public class Player : MonoBehaviour {
 	public float rotationalSpeed = 360f;
 
 	public float invulnerability = 1.5f;
-	public float sprintMultiplier = 1.5f;
+	public float sprintMultiplier = 2f;
+
+	public Color defaultGray = new Color(0.5f, 0.5f, 0.5f);
+
+	private Color currentColor; //Do not access directly, use the property (Unless in the inspector before playmode)
+
 	private float previousDamageTime = -1;
-
 	private CharacterController controller;
-
 	private float vSpeed;
 	private Vector3 displacement;
 
 	private bool jumped = false;
 
-	internal int score = 0;
+	internal int itemsCollected = 0;
 	public int maxHP = 5;
-	internal int currentHP; //Do not access directly (Otherwise, the HP Bar will not update/react to the player's HP)
+	private int currentHP; //Do not access directly, use the property (Otherwise, the HP Bar will not update/react to the player's HP)
 	private Image HPBar;
 
 	private Animator anim;
 	private GameObject capsule;
+	private MeshRenderer meshRenederer;
+	private ParticleSystem shoot;
 
 	public int CurrentHP {
 		get { return currentHP; }
@@ -39,16 +44,42 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+	public Color CurrentColor {
+		get { return currentColor; }
+		set {
+			currentColor = value;
+			meshRenederer.material.color = currentColor;
+		}
+	}
+
 	public void Start() {
 		capsule = transform.FindChild("Capsule").gameObject;
+		meshRenederer = capsule.GetComponent<MeshRenderer>();
 		HPBar = GameObject.Find("HP Bar Green").GetComponent<Image>();
 		controller = GetComponent<CharacterController>();
 		anim = capsule.GetComponent<Animator>();
 		currentHP = maxHP;
+		shoot = transform.FindChild("Shoot Ball").GetComponent<ParticleSystem>();
+	}
+
+	public void SetShootColor(Color c) {
+		Transform shootBall = transform.FindChild("Shoot Ball");
+
+		ParticleSystem.MainModule main;
+		int numChildren = shootBall.childCount;
+		for (int i = 0; i < numChildren; i++) {
+			main = shootBall.GetChild(i).GetComponent<ParticleSystem>().main;
+			main.startColor = new ParticleSystem.MinMaxGradient(c - new Color(0.2f, 0.2f, 0.2f), c + new Color(0.2f, 0.2f, 0.2f));
+		}
+		main = shootBall.gameObject.GetComponent<ParticleSystem>().main;
+		main.startColor = c;
 	}
 
 	public void Update() {
-		anim.SetBool("Sprinting", Input.GetKey(KeyCode.Q));
+		anim.SetBool("Sprinting", Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
+
+		if (Input.GetKeyDown(KeyCode.Mouse0))
+			shoot.Play();
 
 		if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) {
 			Cursor.visible = !Cursor.visible;
@@ -63,7 +94,7 @@ public class Player : MonoBehaviour {
 			if (!controller.isGrounded && !jumped)
 				displacement.x = displacement.z = 0;
 
-			if (controller.isGrounded && Input.GetKey(KeyCode.Q)) {
+			if (controller.isGrounded && Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
 				displacement *= sprintMultiplier;
 			}
 
@@ -79,16 +110,6 @@ public class Player : MonoBehaviour {
 			vSpeed -= 9.81f * gravityMultiplier * Time.deltaTime;
 			displacement.y = vSpeed;
 			controller.Move(transform.TransformDirection(displacement * Time.deltaTime));
-		}
-	}
-
-	public void Collect(Collectable c) {
-		if (c.IsGoodToCollect) {
-			score++;
-			//Spawn a particle effect for collecting?
-			//Sound Effect?
-		} else {
-			//Punishment?
 		}
 	}
 
@@ -109,7 +130,7 @@ public class Player : MonoBehaviour {
 	private IEnumerator Die() {
 
 		//Temporary: Just reload the scene.
-		SceneManager.LoadScene("Main");
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 		yield break;
 	}
 

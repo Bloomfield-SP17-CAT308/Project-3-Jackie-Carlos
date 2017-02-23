@@ -5,9 +5,11 @@ using UnityEngine;
 public class Collectable : MonoBehaviour {
 
 	public float rotationalSpeed = 360f;
-	public GameObject burst;
+	public GameObject burstPrefab;
 
 	private int colorIndex = -1;
+	private BoxCollider triggerCollider;
+	private GameObject burst;
 
 	public bool IsGoodToCollect {
 		get { return Game.Instance.CurrentColorIndex == colorIndex; }
@@ -15,6 +17,7 @@ public class Collectable : MonoBehaviour {
 
 	public void Start() {
 		transform.rotation = Quaternion.Euler(transform.eulerAngles.x, Random.Range(-360, 360), transform.eulerAngles.z);
+		triggerCollider = GetComponent<BoxCollider>();
 	}
 
 	public void Update() {
@@ -32,11 +35,32 @@ public class Collectable : MonoBehaviour {
 	}
 
 	public void OnTriggerEnter(Collider other) {
-		if (other.gameObject.name == "Player")
-			Collect();
+		if (other.gameObject.tag == "Player")
+			StartCoroutine(Collect());
 	}
 
-	public void Collect() {
-		
+	public IEnumerator Collect() {
+		triggerCollider.enabled = false;
+		rotationalSpeed = 0;
+
+		Color color = Game.Instance.randomColors[colorIndex];
+		Game.Player.CurrentColor = Color.Lerp(Game.Player.CurrentColor, color, 0.3f) + 0.2f * color;
+		Game.Player.SetShootColor(color);
+
+		Vector3 initialScale = transform.localScale;
+		for (float i = 0; i <= 1.5f; i += 1.5f / 30) {
+			transform.localScale = initialScale * (1.5f - i);
+			yield return new WaitForSeconds(1.5f / 30);
+		}
+		transform.localScale = Vector3.zero;
+		burst = GameObject.Instantiate(burstPrefab, transform.position, transform.rotation);
+		ParticleSystem p = burst.GetComponent<ParticleSystem>();
+		ParticleSystem.MainModule main = p.main;
+		main.startColor = new ParticleSystem.MinMaxGradient(color - new Color(0.2f, 0.2f, 0.2f), color + new Color(0.2f, 0.2f, 0.2f));
+
+		yield return new WaitForSeconds(main.duration);
+		GameObject.Destroy(burst);
+		GameObject.Destroy(gameObject);
+		yield break;
 	}
 }
