@@ -27,7 +27,12 @@ public class Player : MonoBehaviour {
 	internal int itemsCollected = 0;
 	public int maxHP = 5;
 	private int currentHP; //Do not access directly, use the property (Otherwise, the HP Bar will not update/react to the player's HP)
+	private float currentMP = 0;
 	private Image HPBar;
+	private Image MPBar;
+
+	private bool MPFlashing;
+	private Color originalMPColor;
 
 	private Animator anim;
 	private GameObject capsule;
@@ -40,26 +45,88 @@ public class Player : MonoBehaviour {
 			currentHP = value;
 			if (currentHP < 0)
 				currentHP = 0;
+			else if (currentHP > maxHP)
+				currentHP = maxHP;
 			HPBar.fillAmount = (float) currentHP / maxHP;
 		}
 	}
 
+	public float CurrentMP {
+		get { return currentMP; }
+		set {
+			float originalValue = currentMP;
+			currentMP = value;
+			if (currentMP < 0)
+				currentMP = 0;
+			else if (currentMP > 1)
+				currentMP = 1;
+			StartCoroutine(GradualMPChange(originalValue, currentMP));
+		}
+	}
+
+	private IEnumerator GradualMPChange(float originalValue, float newValue, float duration = 0.5f) {
+		float t0 = Time.time;
+		while (Time.time < t0 + duration) {
+			MPBar.fillAmount = originalValue + ((Time.time - t0) / duration) * (newValue - originalValue);
+			MPBar.color = (MPBar.fillAmount >= 0.4f) ? originalMPColor : Color.yellow;
+			yield return new WaitForEndOfFrame();
+		}
+		MPBar.fillAmount = currentMP;
+		MPBar.color = (currentMP >= 0.4f) ? originalMPColor : Color.yellow;
+		yield break;
+	}
+
 	public Color CurrentColor {
 		get { return currentColor; }
-		set {
-			currentColor = value;
-			meshRenederer.material.color = currentColor;
-		}
+		set { StartCoroutine(ChangeColor(value)); }
 	}
 
 	public void Start() {
 		capsule = transform.FindChild("Capsule").gameObject;
 		meshRenederer = capsule.GetComponent<MeshRenderer>();
-		HPBar = GameObject.Find("HP Bar Green").GetComponent<Image>();
+		HPBar = GameObject.Find("HP Bar").GetComponent<Image>();
+		MPBar = GameObject.Find("MP Bar").GetComponent<Image>();
+		originalMPColor = MPBar.color;
+
 		controller = GetComponent<CharacterController>();
 		anim = capsule.GetComponent<Animator>();
 		currentHP = maxHP;
 		shoot = transform.FindChild("Shoot Ball").GetComponent<ParticleSystem>();
+		StartCoroutine(MPRegen());
+	}
+
+	private IEnumerator MPRegen() {
+		while (true) {
+			CurrentMP += 0.05f;
+			yield return new WaitForSeconds(2.5f);
+		}
+		yield break;
+	}
+
+	private IEnumerator FlashMPBar() {
+		if (MPFlashing)
+			yield break;
+		MPFlashing = true;
+		for (int i = 0; i < 2; i++) {
+			MPBar.color = Color.red;
+			yield return new WaitForSeconds(0.2f);
+			MPBar.color = Color.yellow;
+			yield return new WaitForSeconds(0.2f);
+		}
+		MPBar.color = (currentMP >= 0.4f) ? originalMPColor : Color.yellow;
+		MPFlashing = false;
+		yield break;
+	}
+
+	public IEnumerator ChangeColor(Color newColor, float duration = 1f) {
+		float t0 = Time.time;
+		while (Time.time < t0 + duration) {
+			meshRenederer.material.color = currentColor + ((Time.time - t0) / duration) * (newColor - currentColor);
+			yield return new WaitForEndOfFrame();
+		}
+		meshRenederer.material.color = newColor;
+		currentColor = newColor;
+		yield break;
 	}
 
 	public void SetShootColor(Color c) {
@@ -69,17 +136,20 @@ public class Player : MonoBehaviour {
 		int numChildren = shootBall.childCount;
 		for (int i = 0; i < numChildren; i++) {
 			main = shootBall.GetChild(i).GetComponent<ParticleSystem>().main;
-			main.startColor = new ParticleSystem.MinMaxGradient(c - new Color(0.2f, 0.2f, 0.2f), c + new Color(0.2f, 0.2f, 0.2f));
+			main.startColor = new ParticleSystem.MinMaxGradient(c - new Color(0.2f, 0.2f, 0.2f, 0), c + new Color(0.2f, 0.2f, 0.2f, 0));
 		}
-		main = shootBall.gameObject.GetComponent<ParticleSystem>().main;
-		main.startColor = c;
 	}
 
 	public void Update() {
 		anim.SetBool("Sprinting", Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
 
-		if (Input.GetKeyDown(KeyCode.Mouse0))
-			shoot.Play();
+		if (!Cursor.visible && Input.GetKeyDown(KeyCode.Mouse0)) {
+			if (CurrentMP > 0.4f) {
+				shoot.Play();
+				CurrentMP -= 0.4f;
+			} else
+				StartCoroutine(FlashMPBar());
+		}
 
 		if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl)) {
 			Cursor.visible = !Cursor.visible;
@@ -121,10 +191,8 @@ public class Player : MonoBehaviour {
 		CurrentHP -= amount;
 		if (CurrentHP == 0)
 			StartCoroutine(Die());
-		else {
-			Debug.Log("Going to animate");
+		else
 			anim.SetTrigger("Hit");
-		}
 	}
 
 	private IEnumerator Die() {

@@ -44,8 +44,9 @@ public class Collectable : MonoBehaviour {
 		rotationalSpeed = 0;
 
 		Color color = Game.Instance.randomColors[colorIndex];
-		Game.Player.CurrentColor = Color.Lerp(Game.Player.CurrentColor, color, 0.3f) + 0.2f * color;
+		Game.Player.CurrentColor = color + 0.2f * color;
 		Game.Player.SetShootColor(color);
+		Game.Player.CurrentMP += 0.7f;
 
 		Vector3 initialScale = transform.localScale;
 		for (float i = 0; i <= 1.5f; i += 1.5f / 30) {
