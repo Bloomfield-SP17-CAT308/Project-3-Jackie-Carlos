@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour {
 	private static Game instance;
@@ -10,6 +11,12 @@ public class Game : MonoBehaviour {
 	public float maxChangeTime = 15f;
 
 	public Color[] randomColors;
+
+	[Header("Screen Canvas")]
+	public Text itemsCollected;
+
+	[Header("UI Particle Systems")]
+	public ParticleSystem itemCollect;
 
 	public static Game Instance {
 		get { return instance; }

@@ -42,6 +42,8 @@ public class Collectable : MonoBehaviour {
 	public IEnumerator Collect() {
 		triggerCollider.enabled = false;
 		rotationalSpeed = 0;
+		Game.Instance.itemCollect.Play();
+		Game.Instance.itemsCollected.text = ++Game.Player.itemsCollected + "";
 
 		Color color = Game.Instance.randomColors[colorIndex];
 		Game.Player.CurrentColor = color + 0.2f * color;
@@ -58,7 +60,6 @@ public class Collectable : MonoBehaviour {
 		ParticleSystem p = burst.GetComponent<ParticleSystem>();
 		ParticleSystem.MainModule main = p.main;
 		main.startColor = new ParticleSystem.MinMaxGradient(color - new Color(0.2f, 0.2f, 0.2f), color + new Color(0.2f, 0.2f, 0.2f));
-
 		yield return new WaitForSeconds(main.duration);
 		GameObject.Destroy(burst);
 		GameObject.Destroy(gameObject);
