@@ -30,10 +30,24 @@ public class Game : MonoBehaviour {
 		get { return currentColorIndex; }
 	}
 
+	public int TotalItems {
+		get { return totalItems; }
+	}
+
+	public int TotalMobs {
+		get { return totalMobs; }
+	}
+
 	private FloorColor floorColor;
 	private int currentColorIndex = -1;
 
 	private Player player;
+
+	private int totalItems = -1;
+	private int totalMobs = -1;
+
+	private Light mainDirectional;
+	private float intensityTarget = -1;
 
 	public void Awake() {
 		if (instance != null && instance != this) {
@@ -47,6 +61,10 @@ public class Game : MonoBehaviour {
 	public void Start() {
 		floorColor = GameObject.Find("Terrain").GetComponent<FloorColor>();
 		player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+		mainDirectional = GameObject.Find("Directional Light").GetComponent<Light>();
+
+		totalItems = GameObject.Find("Collectables").transform.childCount;
+		totalMobs = GameObject.Find("Mobs").transform.childCount;
 
 		GameObject[] collectables = GameObject.FindGameObjectsWithTag("Collectable");
 		int c;
@@ -82,4 +100,31 @@ public class Game : MonoBehaviour {
 			b = 1;
 		return new Color(r, g, b, 1f);
 	}
+
+	public void SetMainLight(float intensity) {
+		intensityTarget = intensity;
+		if (intensityTarget > 1) {
+			intensityTarget = -1;
+			return;
+		} else if (intensityTarget < 0)
+			intensityTarget = 0;
+		StartCoroutine(GradualLightChange(3f));
+	}
+
+	private IEnumerator GradualLightChange(float duration = 3f) {
+		float originalTarget = intensityTarget;
+		float originalValue = mainDirectional.intensity;
+		float t0 = Time.time;
+		while (Time.time < t0 + duration) {
+			if (originalTarget != intensityTarget)
+				yield break;
+			mainDirectional.intensity = originalValue + ((Time.time - t0) / duration) * (intensityTarget - originalValue);
+			yield return new WaitForEndOfFrame();
+		}
+		if (originalTarget == intensityTarget)
+			mainDirectional.intensity = intensityTarget;
+		yield break;
+	}
+
+
 }

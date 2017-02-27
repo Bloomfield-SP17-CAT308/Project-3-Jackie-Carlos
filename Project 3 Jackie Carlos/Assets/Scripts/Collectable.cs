@@ -42,8 +42,8 @@ public class Collectable : MonoBehaviour {
 	public IEnumerator Collect() {
 		triggerCollider.enabled = false;
 		rotationalSpeed = 0;
-		Game.Instance.itemCollect.Play();
-		Game.Instance.itemsCollected.text = ++Game.Player.itemsCollected + "";
+
+		Game.Player.ItemsCollected++;
 
 		Color color = Game.Instance.randomColors[colorIndex];
 		Game.Player.CurrentColor = color + 0.2f * color;

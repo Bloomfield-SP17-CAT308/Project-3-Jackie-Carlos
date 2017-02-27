@@ -24,19 +24,21 @@ public class Player : MonoBehaviour {
 
 	private bool jumped = false;
 
-	internal int itemsCollected = 0;
+	private int itemsCollected = 0;
+	private int mobsSaved = 0;
 	public int maxHP = 5;
 	private int currentHP; //Do not access directly, use the property (Otherwise, the HP Bar will not update/react to the player's HP)
 	private float currentMP = 0;
 	private Image HPBar;
 	private Image MPBar;
 
-	private bool MPFlashing;
+	private bool MPFlashing = false;
+	private float MPTarget = -1;
 	private Color originalMPColor;
 
 	private Animator anim;
 	private GameObject capsule;
-	private MeshRenderer meshRenederer;
+	private MeshRenderer meshRenderer;
 	private ParticleSystem shoot;
 
 	public int CurrentHP {
@@ -54,25 +56,49 @@ public class Player : MonoBehaviour {
 	public float CurrentMP {
 		get { return currentMP; }
 		set {
-			float originalValue = currentMP;
-			currentMP = value;
-			if (currentMP < 0)
-				currentMP = 0;
-			else if (currentMP > 1)
-				currentMP = 1;
-			StartCoroutine(GradualMPChange(originalValue, currentMP));
+			MPTarget = value;
+			if (MPTarget < 0)
+				MPTarget = 0;
+			else if (MPTarget > 1)
+				MPTarget = 1;
+			//This will use the currentMP as the originalValue, and the currentMP will have its value and
+			//its graphic synchronized together, even during a gradual MP transition.
+			StartCoroutine(GradualMPChange(currentMP));
 		}
 	}
 
-	private IEnumerator GradualMPChange(float originalValue, float newValue, float duration = 0.5f) {
+	public int ItemsCollected {
+		get { return itemsCollected; }
+		set {
+			itemsCollected = value;
+			Game.Instance.itemCollect.Play();
+			Game.Instance.itemsCollected.text = itemsCollected + "";
+		}
+	}
+
+	public int MobsSaved {
+		get { return mobsSaved; }
+		set {
+			mobsSaved = value;
+			Game.Instance.SetMainLight((float) mobsSaved / Game.Instance.TotalMobs);
+		}
+	}
+
+	private IEnumerator GradualMPChange(float originalValue, float duration = 0.5f) {
+		float originalTarget = MPTarget;
 		float t0 = Time.time;
 		while (Time.time < t0 + duration) {
-			MPBar.fillAmount = originalValue + ((Time.time - t0) / duration) * (newValue - originalValue);
+			if (originalTarget != MPTarget)
+				yield break;
+			currentMP = MPBar.fillAmount = originalValue + ((Time.time - t0) / duration) * (MPTarget - originalValue);
 			MPBar.color = (MPBar.fillAmount >= 0.4f) ? originalMPColor : Color.yellow;
 			yield return new WaitForEndOfFrame();
 		}
-		MPBar.fillAmount = currentMP;
-		MPBar.color = (currentMP >= 0.4f) ? originalMPColor : Color.yellow;
+		if (originalTarget == MPTarget) {
+			MPBar.fillAmount = currentMP;
+			MPBar.color = (currentMP >= 0.4f) ? originalMPColor : Color.yellow;
+			MPTarget = -1;
+		}
 		yield break;
 	}
 
@@ -83,7 +109,7 @@ public class Player : MonoBehaviour {
 
 	public void Start() {
 		capsule = transform.FindChild("Capsule").gameObject;
-		meshRenederer = capsule.GetComponent<MeshRenderer>();
+		meshRenderer = capsule.GetComponent<MeshRenderer>();
 		HPBar = GameObject.Find("HP Bar").GetComponent<Image>();
 		MPBar = GameObject.Find("MP Bar").GetComponent<Image>();
 		originalMPColor = MPBar.color;
@@ -121,10 +147,10 @@ public class Player : MonoBehaviour {
 	public IEnumerator ChangeColor(Color newColor, float duration = 1f) {
 		float t0 = Time.time;
 		while (Time.time < t0 + duration) {
-			meshRenederer.material.color = currentColor + ((Time.time - t0) / duration) * (newColor - currentColor);
+			meshRenderer.material.color = currentColor + ((Time.time - t0) / duration) * (newColor - currentColor);
 			yield return new WaitForEndOfFrame();
 		}
-		meshRenederer.material.color = newColor;
+		meshRenderer.material.color = newColor;
 		currentColor = newColor;
 		yield break;
 	}

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpikeMovement : MonoBehaviour {
 
-	public float displacement = 1f;
+	public float displacement = 4f;
 
 	private Vector3 originalPos;
 	private bool spikingUp = false;
