@@ -11,18 +11,25 @@ public class Mob : MonoBehaviour {
 	private Color currentColor;
 
 	private NavMeshAgent agent;
+	private Animator anim;
 
 	private bool saved = false;
 	private Vector3 spawnPoint;
 	private bool wandering = false;
 
+	private AudioSource audio;
+
 	public void Start() {
-		meshRenderer = GetComponent<MeshRenderer>();
+		meshRenderer = transform.FindChild("Capsule").GetComponent<MeshRenderer>();
 		agent = GetComponent<NavMeshAgent>();
+		anim = transform.FindChild("Capsule").GetComponent<Animator>();
 		spawnPoint = transform.position;
+		audio = GetComponent<AudioSource>();
 		StartCoroutine(Wander());
 	}
 
+	//In order to do this movement with an Animator component attached, that Animator
+	//Must have Apply Root Motion = true (checked)
 	private IEnumerator Wander() {
 		if (wandering)
 			yield break;
@@ -32,13 +39,13 @@ public class Mob : MonoBehaviour {
 		while (wandering) {
 			destination = spawnPoint + Random.Range(0f, wanderRadius) * Vector3.Normalize(new Vector3(Random.Range(0f, 1f), 0, Random.Range(0f, 1f)));
 			agent.SetDestination(destination);
-			while (Vector3.Distance(transform.position, destination) > 0.3f) {
-				Debug.Log(agent.speed);
-				yield return new WaitForEndOfFrame();
-			}
-			Debug.Log("Haha");
+			anim.SetBool("Moving", true);
+			while (Vector3.Distance(transform.position, destination) > 0.3f)
+				yield return new WaitForSeconds(0.3f);
+			anim.SetBool("Moving", false);
 			yield return new WaitForSeconds(Random.Range(3, 5));
 		}
+		anim.SetBool("Moving", false);
 		wandering = false;
 		yield break;
 	}
@@ -48,6 +55,10 @@ public class Mob : MonoBehaviour {
 			yield break;
 		saved = true;
 		Game.Player.MobsSaved++;
+
+		anim.SetTrigger("Colorized");
+		audio.Play();
+
 		float t0 = Time.time;
 		while (Time.time < t0 + duration) {
 			meshRenderer.material.color = currentColor + ((Time.time - t0) / duration) * (newColor - currentColor);
@@ -58,11 +69,10 @@ public class Mob : MonoBehaviour {
 		yield break;
 	}
 
-	public void OnCollisionEnter(Collision collision) {
-		Debug.Log("Teset");
-	}
-
 	public void OnDrawGizmosSelected() {
-		Gizmos.DrawWireSphere(transform.position, wanderRadius);
+		if (spawnPoint == Vector3.zero)
+			Gizmos.DrawWireSphere(transform.position, wanderRadius);
+		else
+			Gizmos.DrawWireSphere(spawnPoint, wanderRadius);
 	}
 }

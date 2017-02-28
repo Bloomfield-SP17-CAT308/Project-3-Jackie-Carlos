@@ -14,6 +14,9 @@ public class Player : MonoBehaviour {
 	public float sprintMultiplier = 2f;
 
 	public Color defaultGray = new Color(0.5f, 0.5f, 0.5f);
+	public int maxHP = 5;
+
+	public AudioClip shootSFX;
 
 	private Color currentColor; //Do not access directly, use the property (Unless in the inspector before playmode)
 
@@ -26,7 +29,6 @@ public class Player : MonoBehaviour {
 
 	private int itemsCollected = 0;
 	private int mobsSaved = 0;
-	public int maxHP = 5;
 	private int currentHP; //Do not access directly, use the property (Otherwise, the HP Bar will not update/react to the player's HP)
 	private float currentMP = 0;
 	private Image HPBar;
@@ -40,6 +42,9 @@ public class Player : MonoBehaviour {
 	private GameObject capsule;
 	private MeshRenderer meshRenderer;
 	private ParticleSystem shoot;
+
+	[HideInInspector]
+	public AudioSource audio;
 
 	public int CurrentHP {
 		get { return currentHP; }
@@ -72,10 +77,10 @@ public class Player : MonoBehaviour {
 		set {
 			itemsCollected = value;
 			Game.Instance.itemCollect.Play();
-			Game.Instance.itemsCollected.text = itemsCollected + "";
+			Game.Instance.itemsCollectedText.text = itemsCollected + "";
 			if (itemsCollected == Game.Instance.TotalItems) {
-				Game.Instance.itemsCollected.fontSize += 4;
-				Game.Instance.itemsCollected.color = Color.yellow;
+				Game.Instance.itemsCollectedText.fontSize += 4;
+				Game.Instance.itemsCollectedText.color = Color.yellow;
 			}
 		}
 	}
@@ -84,11 +89,11 @@ public class Player : MonoBehaviour {
 		get { return mobsSaved; }
 		set {
 			mobsSaved = value;
-			Game.Instance.mobsSaved.text = mobsSaved + "";
+			Game.Instance.mobsSavedText.text = mobsSaved + "";
 			Game.Instance.SetMainLight((float) mobsSaved / Game.Instance.TotalMobs);
 			if (mobsSaved == Game.Instance.TotalMobs) {
-				Game.Instance.mobsSaved.fontSize += 4;
-				Game.Instance.mobsSaved.color = Color.yellow;
+				Game.Instance.mobsSavedText.fontSize += 4;
+				Game.Instance.mobsSavedText.color = Color.yellow;
 			}
 		}
 	}
@@ -125,6 +130,7 @@ public class Player : MonoBehaviour {
 		MPBar = GameObject.Find("MP Bar").GetComponent<Image>();
 		originalMPColor = MPBar.color;
 
+		audio = GetComponent<AudioSource>();
 		controller = GetComponent<CharacterController>();
 		anim = capsule.GetComponent<Animator>();
 		currentHP = maxHP;
@@ -181,10 +187,9 @@ public class Player : MonoBehaviour {
 		anim.SetBool("Sprinting", Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
 
 		if (!Cursor.visible && Input.GetKeyDown(KeyCode.Mouse0)) {
-			if (CurrentMP > 0.4f) {
-				shoot.Play();
-				CurrentMP -= 0.4f;
-			} else
+			if (CurrentMP > 0.4f)
+				Shoot();
+			else
 				StartCoroutine(FlashMPBar());
 		}
 
@@ -218,6 +223,13 @@ public class Player : MonoBehaviour {
 			displacement.y = vSpeed;
 			controller.Move(transform.TransformDirection(displacement * Time.deltaTime));
 		}
+	}
+
+	private void Shoot() {
+		shoot.Play();
+		audio.clip = shootSFX;
+		audio.Play();
+		CurrentMP -= 0.4f;
 	}
 
 	public void Damage(int amount) {

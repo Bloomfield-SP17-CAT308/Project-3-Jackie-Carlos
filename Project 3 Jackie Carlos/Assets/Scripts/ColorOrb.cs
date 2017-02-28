@@ -6,7 +6,7 @@ public class ColorOrb : MonoBehaviour {
 
 	public void OnParticleCollision(GameObject other) {
 		if (other.tag == "Mob")
-			StartCoroutine(other.GetComponent<Mob>().ChangeColor(Game.Player.CurrentColor));
+			StartCoroutine(other.transform.parent.GetComponent<Mob>().ChangeColor(Game.Player.CurrentColor));
 	}
 
 }

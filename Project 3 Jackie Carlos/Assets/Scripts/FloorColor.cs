@@ -9,6 +9,10 @@ public class FloorColor : MonoBehaviour {
 
 	private Color[] originalPixels;
 
+	public Color CurrentColor {
+		get { return pixels[0]; }
+	}
+
 	public void Start() {
 		originalPixels = sprite.GetPixels();
 	}

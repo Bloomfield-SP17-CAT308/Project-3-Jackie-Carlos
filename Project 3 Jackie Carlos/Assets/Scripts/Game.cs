@@ -13,8 +13,8 @@ public class Game : MonoBehaviour {
 	public Color[] randomColors;
 
 	[Header("Screen Canvas")]
-	public Text itemsCollected;
-	public Text mobsSaved;
+	public Text itemsCollectedText;
+	public Text mobsSavedText;
 
 	[Header("UI Particle Systems")]
 	public ParticleSystem itemCollect;
@@ -74,10 +74,11 @@ public class Game : MonoBehaviour {
 			collectables[i].GetComponent<Collectable>().SetColor(randomColors[c], c);
 		}
 
-		StartCoroutine(UpdateColor());
+		floorColor.SetColor(Color.gray);
+		//StartCoroutine(UpdateColor());
 	}
 
-	public IEnumerator UpdateColor() {
+	/*public IEnumerator UpdateColor() {
 		while (true) {
 			currentColorIndex = Random.Range(0, randomColors.Length);
 			currentColor = randomColors[currentColorIndex];
@@ -86,7 +87,7 @@ public class Game : MonoBehaviour {
 			yield return new WaitForSeconds(Random.Range(minChangeTime, maxChangeTime));
 		}
 		yield break;
-	}
+	}*/
 
 	//This method returns a color that is brighter and less saturated in color than the original. (Helpful for the terrain color)
 	public Color SimpleDesaturate(Color c, float addition = 0.4f) {
@@ -115,11 +116,13 @@ public class Game : MonoBehaviour {
 	private IEnumerator GradualLightChange(float duration = 3f) {
 		float originalTarget = intensityTarget;
 		float originalValue = mainDirectional.intensity;
+		Color originalFloorColor = floorColor.CurrentColor;
 		float t0 = Time.time;
 		while (Time.time < t0 + duration) {
 			if (originalTarget != intensityTarget)
 				yield break;
 			mainDirectional.intensity = originalValue + ((Time.time - t0) / duration) * (intensityTarget - originalValue);
+			floorColor.SetColor(originalFloorColor + ((Time.time - t0) / duration) * (new Color(0, (float) Player.MobsSaved / TotalMobs, 0, 1) - originalFloorColor));
 			yield return new WaitForEndOfFrame();
 		}
 		if (originalTarget == intensityTarget)
