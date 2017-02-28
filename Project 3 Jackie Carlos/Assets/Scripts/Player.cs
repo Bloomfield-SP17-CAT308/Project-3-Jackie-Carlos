@@ -73,6 +73,10 @@ public class Player : MonoBehaviour {
 			itemsCollected = value;
 			Game.Instance.itemCollect.Play();
 			Game.Instance.itemsCollected.text = itemsCollected + "";
+			if (itemsCollected == Game.Instance.TotalItems) {
+				Game.Instance.itemsCollected.fontSize += 4;
+				Game.Instance.itemsCollected.color = Color.yellow;
+			}
 		}
 	}
 
@@ -80,7 +84,12 @@ public class Player : MonoBehaviour {
 		get { return mobsSaved; }
 		set {
 			mobsSaved = value;
+			Game.Instance.mobsSaved.text = mobsSaved + "";
 			Game.Instance.SetMainLight((float) mobsSaved / Game.Instance.TotalMobs);
+			if (mobsSaved == Game.Instance.TotalMobs) {
+				Game.Instance.mobsSaved.fontSize += 4;
+				Game.Instance.mobsSaved.color = Color.yellow;
+			}
 		}
 	}
 
@@ -108,6 +117,8 @@ public class Player : MonoBehaviour {
 	}
 
 	public void Start() {
+		Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Locked;
 		capsule = transform.FindChild("Capsule").gameObject;
 		meshRenderer = capsule.GetComponent<MeshRenderer>();
 		HPBar = GameObject.Find("HP Bar").GetComponent<Image>();

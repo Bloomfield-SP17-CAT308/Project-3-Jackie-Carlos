@@ -5,10 +5,8 @@ using UnityEngine;
 public class ColorOrb : MonoBehaviour {
 
 	public void OnParticleCollision(GameObject other) {
-		if (other.tag == "Mob") {
-			Game.Player.MobsSaved++;
+		if (other.tag == "Mob")
 			StartCoroutine(other.GetComponent<Mob>().ChangeColor(Game.Player.CurrentColor));
-		}
 	}
 
 }

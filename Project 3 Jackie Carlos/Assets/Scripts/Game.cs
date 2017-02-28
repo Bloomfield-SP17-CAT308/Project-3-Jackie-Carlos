@@ -14,6 +14,7 @@ public class Game : MonoBehaviour {
 
 	[Header("Screen Canvas")]
 	public Text itemsCollected;
+	public Text mobsSaved;
 
 	[Header("UI Particle Systems")]
 	public ParticleSystem itemCollect;
